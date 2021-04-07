@@ -22,7 +22,7 @@ class tool_run:
         self.yw = yaml_write(self.sys_config)
 
     def read_sys(self):
-        with open('sys_config.yaml', 'r', encoding='utf-8') as config_yaml:
+        with open('sys_config.yml', 'r', encoding='utf-8') as config_yaml:
             sys_config = yaml.load(config_yaml, Loader=yaml.FullLoader)
         return sys_config
 
@@ -130,10 +130,10 @@ class tool_run:
         sh = [self.sys_config['xray']['name'], 'webscan', '--listen', self.sys_config['xray']['proxy'], '--html-output',output+'_'+date+'.html']
         xraysh = self.check_sys(sh)
         with open('log/xray_'+output+'_'+date+'.log', 'w') as xraylog:
-            xraysp = subprocess.Popen(xraysh, stdout=xraylog)
+            subprocess.Popen(xraysh, stdout=xraylog)
             time.sleep(5)
             print('[+] INFO:xray已经启动，log文件位置 log/xray_'+output+'_'+date+'.log')
-        return xraysp
+            return
 
     def parse_log(self,logpath):
         req_dict = {}
@@ -164,7 +164,7 @@ class tool_run:
         parse = urllib.parse.urlparse(target)
         host = parse.netloc
         self.yw.target_write(host)
-        xraysp = self.xray_run(host,date)
+        self.xray_run(host,date)
         print('[+] INFO:爬取开始，目标地址为{}'.format(target))
         self.rad_run(target,host,date)
 
@@ -173,7 +173,7 @@ class tool_run:
         hosts,targets = self.parse_file(argv)
         self.yw.target_write(hosts)
         file = os.path.basename(argv)
-        xraysp = self.xray_run(file,date)
+        self.xray_run(file,date)
         for t,h in zip(targets,hosts):
             print('[+] INFO:爬取开始，目标地址为{}'.format(t))
             self.rad_run(t, h, date)
@@ -182,7 +182,7 @@ class tool_run:
         date = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(time.time()))
         req_dict = self.parse_log(argv)
         self.yw.log_write(req_dict)
-        xraysp = self.xray_run(req_dict['Host'],date)
+        self.xray_run(req_dict['Host'],date)
         target = self.check_protocol(req_dict['Host'] + req_dict['Path'])
         print('[+] INFO:爬取开始，目标地址为{}'.format(target))
         self.rad_run(target, req_dict['Host'], date)
